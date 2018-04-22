@@ -1,0 +1,39 @@
+{
+  "name": "testDataRepo",
+  "version": "1.0.0",
+  "description": "This is a small application to manage test data",
+  "main": "server.js",
+  "scripts": {},
+  "author": "Jonas Roebke",
+  "license": "MIT",
+  "bugs": {
+    "url": "getintouchwithjonas@gmail.com"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.1",
+    "bootstrap-tagsinput": "^0.7.1",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.3",
+    "dotenv": "^2.0.0",
+    "ejs": "^2.5.1",
+    "express": "^4.16.2",
+    "express-ejs-layouts": "^2.2.0",
+    "express-fileupload": "^0.4.0",
+    "express-session": "^1.14.0",
+    "express-validator": "^2.21.0",
+    "fast-csv": "^2.4.1",
+    "helmet": "^3.9.0",
+    "is-error-code": "^1.0.0",
+    "json2csv": "^4.0.2",
+    "minimist": "*",
+    "moment": "^2.18.1",
+    "mongodb": "^3.0.4",
+    "mongoose": "^4.11.11",
+    "mongoose-duplicate-error": "^1.0.0",
+    "mongoose-paginate": "^5.0.3",
+    "mongoose-timestamp": "^0.6.0",
+    "swagger-jsdoc": "^1.9.7",
+    "swagger-ui": "^3.4.1",
+    "tablesorter": "^2.29.0"
+  }
+}

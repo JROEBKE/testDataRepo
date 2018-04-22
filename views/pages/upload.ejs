@@ -1,0 +1,36 @@
+<div class="container">
+
+  <div class="jumbotron text-center">
+      <h1>CSV file upload</h1>
+  </div>
+
+
+  <!--<p>Click <a href="/upload/template">here</a> for an example template.</p> not yet working -->
+
+  <div class="row">
+      <div class="col-sm-12 col-sm-offset-0">
+
+          <% if (errors.length > 0) { %>
+              <div class="alert alert-danger">
+  								<% for (error of errors) { %>
+                      <%- error %><br> <!-- "-" instead of "=" to allow unescaped html -->
+                  <% } %>
+              </div>
+          <% } %>
+
+
+
+          <form action="/upload" method="POST" encType="multipart/form-data">
+            <div class="form-group">
+              <h3>file upload to create new data</h3>
+             <label for="file" class ="control-label col-sm-2">Upload csv file:</label>
+             <input type="file" id="file" name="file" class ="control-label col-sm-5" accept=".csv" required="" >
+             <div class ="control-label col-sm-4">
+              <button type="submit" name="create" class="btn btn-success">Create</button>
+             </div>
+            </div>
+        	</form>
+
+     </div>
+  </div>
+</div>

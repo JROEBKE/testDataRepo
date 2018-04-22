@@ -1,0 +1,127 @@
+<div class="container">
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css">
+<link href="/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="/js/fieldValidation.js"></script>
+
+
+
+<script>
+  //search tags as tags
+       $(function(){
+         var sampleTags = ['']; // no autocompletes defined yet
+        $("#tags").tagit({
+            availableTags: sampleTags
+        });
+
+       });
+</script>
+
+<script>
+  //stages as tags
+       $(function(){
+         var sampleTags = ['']; // no autocompletes defined yet
+        $("#stages").tagit({
+            availableTags: sampleTags
+        });
+
+       });
+</script>
+
+<div class="jumbotron text-center">
+    <h1>Create an test data entry</h1>
+</div>
+
+<div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+
+        <% if (errors.length > 0) { %>
+            <div class="alert alert-danger">
+								<% for (error of errors) { %>
+                    <%- error %><br> <!-- "-" instead of "=" to allow unescaped html -->
+                <% } %>
+            </div>
+        <% } %>
+
+        <form action="/testdataentries/create" method="POST" id="create" onsubmit="return validateForm()" class="form-horizontal" >
+						<div class="form-group">
+							<label for="email" class ="control-label col-sm-2">Email:</label>
+							<div class ="control-label col-sm-9">
+								<input type="text" name="email" id="email" onblur="validateEmail(value)" class="form-control">
+								<span id="emailError" style="display: none;">You must enter a valid email address</span>
+						 </div>
+						</div>
+
+						<div class="form-group">
+              <label for="password" class ="control-label col-sm-2">Password:</label>
+              <div class ="control-label col-sm-9">
+                <input type="text" name="password" id="password" class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class ="control-label col-sm-2">Description:</label>
+                <div class ="control-label col-sm-9">
+                 <textarea name="description" rows="5" class="form-control" id="description" ></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+              <label for="stages" class ="control-label col-sm-2">Stages:</label>
+              <div class ="control-label col-sm-9">
+               <input name="stages" id="stages" value="">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tags" class ="control-label col-sm-2">Search tags:</label>
+              <div class ="control-label col-sm-9">
+               <input name="tags" id="tags" value="">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class ="control-label col-sm-5">
+              </div>
+              <div class ="control-label col-sm-6">
+                  <button type="submit" name="create" class="btn btn-success btn-lg">Create</button>
+              </div>
+
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+//query parameters as default set if backend error occurs
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
+
+var description= document.getElementById('description');
+description.value = getUrlParameter('description');
+
+var email = document.getElementById('email');
+email.value = getUrlParameter('email');
+
+var password = document.getElementById('password');
+password.value = getUrlParameter('password');
+
+var stages = document.getElementById('stages');
+stages.value = getUrlParameter('stages');
+
+var tags = document.getElementById('tags');
+tags.value = getUrlParameter('tags');
+
+</script>
+</div>
