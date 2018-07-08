@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "This is a small application to manage test data",
   "main": "server.js",
-  "scripts": {},
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
+  },
   "author": "Jonas Roebke",
   "license": "MIT",
   "bugs": {
@@ -34,6 +37,8 @@
     "mongoose-timestamp": "^0.6.0",
     "swagger-jsdoc": "^1.9.7",
     "swagger-ui": "^3.4.1",
-    "tablesorter": "^2.29.0"
-  }
+    "tablesorter": "^2.29.0",
+    "snyk": "^1.88.2"
+  },
+  "snyk": true
 }
