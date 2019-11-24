@@ -18,7 +18,7 @@
     "ejs": "^2.5.1",
     "express": "^4.16.2",
     "express-ejs-layouts": "^2.2.0",
-    "express-fileupload": "^0.4.0",
+    "express-fileupload": "^1.1.6",
     "express-session": "^1.14.0",
     "express-validator": "^2.21.0",
     "fast-csv": "^2.4.1",
