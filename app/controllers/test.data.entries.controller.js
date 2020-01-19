@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 var TestDataEntry = require('../models/testDataEntry');
 
 module.exports = {
@@ -87,102 +88,96 @@ module.exports = {
    });
  }
 
- /**
-  * Process the creation form
-  */
- function processCreate(req, res) {
-   // validate information
-   req.checkBody('email', 'Invalid email if provided it must follow normal conventions like abc@def.de').isEmail().notEmpty();
+/**
+* Process the creation form
+*/
+function processCreate(req, res) {
+ // create a new testDataEntry
+ const testDataEntry = new TestDataEntry({
+   email: req.body.email,
+   stages: req.body.stages,
+   tags: req.body.tags,
+   password: req.body.password,
+   description: req.body.description
+});
 
-   // create a new testDataEntry
-   const testDataEntry = new TestDataEntry({
-     email: req.body.email,
-     stages: req.body.stages,
-     tags: req.body.tags,
-     password: req.body.password,
-     description: req.body.description
-   });
-
-   // if there are errors, redirect and save errors to flash
-   const errors = req.validationErrors();
-   if (errors) {
-     req.flash('errors', errors.map(err => err.msg));
-     return res.redirect('/testDataEntries/create'+'?email='+testDataEntry.email+'&password='+testDataEntry.password+'&stages='+testDataEntry.stages+'&tags='+testDataEntry.tags+'&description='+testDataEntry.description);
-   }
-
-   // save testDataEntry
-   testDataEntry.save(function(err) {
-     if (err){
-       req.flash('errors', 'email already in use!'); // struggle to include dynamic link to existing entry +'<a href=\"/testdataentries/:slug/edit"\>Edit existing one</a>'
-       return res.redirect('/testDataEntries/create'+'?email='+testDataEntry.email+'&password='+testDataEntry.password+'&stages='+testDataEntry.stages+'&tags='+testDataEntry.tags+'&description='+testDataEntry.description);
-     }
-       // set a successful flash message
-     req.flash('success', 'Successfully created Entry!');
-       // redirect to the testDataEntries page
-     res.redirect('/testDataEntries');
-   });
+ // if there are errors, redirect and save errors to flash
+ const errors = validationResult(req);
+ if (!errors.isEmpty()) {
+   req.flash('errors', errors.map(err => err.msg));
+   return res.redirect('/web/testDataEntries/create'+'?email='+testDataEntry.email+'&password='+testDataEntry.password+'&stages='+testDataEntry.stages+'&tags='+testDataEntry.tags+'&description='+testDataEntry.description);
  }
 
- /**
-  * Show the edit form
-  */
- function showEdit(req, res) {
-   TestDataEntry.findOne({ slug: req.params.slug }, (err, testDataEntry) => {
-     res.render('pages/edit', {
-       testDataEntry: testDataEntry,
-       errors: req.flash('errors')
-     });
-   });
- }
-
-
- /**
-  * Process the edit form
-  */
- function processEdit(req, res) {
-   // validate information
-   req.checkBody('email', 'Invalid email if provided it must follow normal conventions like abc@def.com').isEmail().notEmpty();
-
-
-   // if there are errors, redirect and save errors to flash
-   const errors = req.validationErrors();
-   if (errors) {
-     req.flash('errors', errors.map(err => err.msg));
-     return res.redirect(`/testDataEntries/${req.params.slug}/edit`);
+ // save testDataEntry
+ testDataEntry.save(function(err) {
+   if (err){
+     req.flash('errors', 'email already in use!'); // struggle to include dynamic link to existing entry +'<a href=\"/testdataentries/:slug/edit"\>Edit existing one</a>'
+     return res.redirect('/web/testDataEntries/create'+'?email='+testDataEntry.email+'&password='+testDataEntry.password+'&stages='+testDataEntry.stages+'&tags='+testDataEntry.tags+'&description='+testDataEntry.description);
    }
+   // set a successful flash message
+   req.flash('success', 'Successfully created Entry!');
+     // redirect to the testDataEntries page
+   res.redirect('/web/testDataEntries');
+  });
+}
 
+/**
+* Show the edit form
+*/
+function showEdit(req, res) {
+ TestDataEntry.findOne({ slug: req.params.slug }, (err, testDataEntry) => {
+   res.render('pages/edit', {
+     testDataEntry: testDataEntry,
+     errors: req.flash('errors')
+   });
+ });
+}
+
+/**
+* Process the edit form
+*/
+function processEdit(req, res) {
+ // if there are errors, redirect and save errors to flash
+ const errors = validationResult(req);
+ if (!errors.isEmpty()) {
+   req.flash('errors', errors.map(err => err.msg));
+   return res.redirect(`/web/testDataEntries/${req.params.slug}/edit`);
+ }
    // finding a current testDataEntry
-   TestDataEntry.findOne({ slug: req.params.slug }, (err, testDataEntry) => {
-     // updating that testDataEntry
-     testDataEntry.email       = req.body.email;
-     testDataEntry.description = req.body.description;
-     testDataEntry.password    = req.body.password;
-     testDataEntry.stages      = req.body.stages;
-     testDataEntry.tags        = req.body.tags;
-
-     testDataEntry.save((err) => {
-       if (err)
-         throw err;
-
-       // success flash message
-       req.flash('success', 'Successfully updated Entry.');
-       res.redirect('/testDataEntries');
-     });
+ TestDataEntry.findOne({ slug: req.params.slug }, (err, testDataEntry) => {
+   // updating that testDataEntry
+   testDataEntry.email       = req.body.email;
+   testDataEntry.description = req.body.description;
+   testDataEntry.password    = req.body.password;
+   testDataEntry.stages      = req.body.stages;
+   testDataEntry.tags        = req.body.tags;
+   testDataEntry.save((err) => {
+   if (err)
+     throw err;
+     // success flash message
+     req.flash('success', 'Successfully updated Entry.');
+     res.redirect('/web/testDataEntries');
    });
+ });
+}
 
- }
+/**
+* Delete an testDataEntry
+*/
+function deleteTestDataEntry(req, res) {
 
+   // if there are errors, redirect and save errors to flash
+   const errors = validationResult(req);
+   if (!errors.isEmpty()) {
+     req.flash('errors', errors.map(err => err.msg));
+     return res.redirect(`/web/testDataEntries/${req.params.slug}/edit`);
+   }
 
-
- /**
-  * Delete an testDataEntry
-  */
- function deleteTestDataEntry(req, res) {
    TestDataEntry.remove({ slug: req.params.slug }, (err) => {
      // set flash data
      // redirect back to the testDataEntries page
      req.flash('success', 'Entry deleted!');
-     res.redirect('/testDataEntries');
+     res.redirect('/web/testDataEntries');
    });
  }
 

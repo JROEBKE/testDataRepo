@@ -1,4 +1,11 @@
+const swaggerJSDoc   = require('swagger-jsdoc'); //swagger API doc
+
 module.exports = {
+
+  // redirect to web
+  base: (req, res) => {
+    res.redirect('/web');
+  },
 
   // show the home page
   showHome: (req, res) => {
@@ -17,15 +24,14 @@ module.exports = {
     var swaggerDefinition = {
       swagger: "2.0",
       info: {
-        title: 'TestData API',
-        version: '1.0.0',
-        description: 'Swagger description of REST API for test data management',
+        title: 'Test accounts API',
+        version: '1.1.0',
+        description: 'Swagger description of REST API for managing test accounts. If token validation is activated you will have to provide "Bearer <token>" in authorization dialog because swagger 2.0 does not natively support bearer tokens',
         contact: {
           email: 'getintouchwithjonas@gmail.com'
         },
         license: 'MIT',
       },
-      //host: 'localhost:8080',
       basePath: '/',
 
     };

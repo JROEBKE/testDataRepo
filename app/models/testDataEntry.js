@@ -5,10 +5,6 @@ const mongoose = require('mongoose'),
   mongoosePaginate = require('mongoose-paginate');
   moment = require("moment"); // timestamp format
   check = require('express-validator'); // Request validation
-  validationResult = require('express-validator');
-  matchedData = require('express-validator');
-  sanitize = require('express-validator');
-
 
 
 // create a schema

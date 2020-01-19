@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 var TestDataEntry = require('../models/testDataEntry');
 
 module.exports = {
@@ -13,6 +14,14 @@ module.exports = {
  * Get all test data entries and query, sorting and filtering supported
  */
 function getTestDataEntries(req, res) {
+      console.log(req);
+
+      // validation error handling
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() })
+        console.log(errors);
+      }
 
       // variable definition for pagination, parsing necessary otherwise error
       var resultsPage = (parseInt(req.query.page)) || 1;
@@ -99,45 +108,49 @@ function getTestDataEntries(req, res) {
  * Post new testDataEntry (outdated default is false)
  */
 function postTestDataEntry(req, res) {
-      // validate data provided
-      if (req.body.email) {
-      req.checkBody('email', 'Invalid email').isEmail();
-      }
 
-      // if there are errors send error back
-      var errors = req.validationErrors();
-      if (errors) {
-        res.send (errors);
-        console.log(errors);
-      }
-      else {
+    // validation error handling
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+      console.log(errors);
+    }
 
-       const testDataEntry = new TestDataEntry({
+   var testDataEntry = new TestDataEntry({
          email: req.body.email,
          description: req.body.description,
          password: req.body.password,
          stages: req.body.stages,
          tags: req.body.tags,
 
-       });
-       // save the testDataEntry
-       testDataEntry.save(function(err) {
-          if (err) {
-                  res.send (err);
-                  console.log(err);
-             } else {
-                  res.status(201);
-                  res.json({message: 'TestDataEntry created!'});
-                  //res.json(testDataEntry);
-             }
-       });
-     };
+
+    });
+    // save the testDataEntry
+    testDataEntry.save(function(err) {
+      if (err) {
+              res.send (err);
+              console.log(err);
+      } else {
+        res.status(201);
+        res.json({message: 'TestDataEntry created!'});
+        //res.json(testDataEntry);
+      }
+    });
+
 }
 
 /**
  * Get single testDataEntry
  */
 function getTestDataEntry(req, res) {
+
+  // validation error handling
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+      console.log(errors);
+  }
+
   //find faster then findOne if limit can be added it might even faster
   TestDataEntry.find({ slug: req.params.slug }, (err, testDataEntry) => {
     if (err) {
@@ -154,17 +167,14 @@ function getTestDataEntry(req, res) {
 * Modify single testDataEntry full update
 */
 function putTestDataEntry(req, res) {
-  // validate data provided
-  if (req.body.email) {
-  req.checkBody('email', 'Invalid email').isEmail();
+
+  // validation error handling
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+      console.log(errors);
   }
 
-  // if there are errors send error back
-  var errors = req.validationErrors();
-  if (errors) {
-    res.send (errors);
-    console.log(errors);
-  }
   else {
 
     TestDataEntry.findOne({ slug: req.params.slug }, (err, testDataEntry) => {
@@ -187,18 +197,14 @@ function putTestDataEntry(req, res) {
 * Modify single testDataEntry patch update
 */
 function patchTestDataEntry(req, res) {
-  // validate data provided
-  if (req.body.email) {
-  req.checkBody('email', 'Invalid email').isEmail();
+
+  // validation error handling
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+      console.log(errors);
   }
 
-
-  // if there are errors send error back
-  var errors = req.validationErrors();
-  if (errors) {
-    res.send (errors);
-    console.log(errors);
-  }
   else {
     TestDataEntry.findOne({ slug: req.params.slug }, (err, testDataEntry) => {
       // every field is as default previous field only
@@ -221,12 +227,20 @@ function patchTestDataEntry(req, res) {
 * Delete single testDataEntry
 */
 function deleteTestDataEntry(req, res) {
-        TestDataEntry.remove({slug: req.params.slug}, function (err, testDataEntries) {
-            if (err)
-              res.status(500).end('Something went wrong');
-            //res.status(204).end('TestDataEntry deleted'); does not work yet better 200 with message
-            res.json({ message: 'TestDataEntry deleted!' });
-        });
+
+  // validation error handling
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+      console.log(errors);
+  }
+
+  TestDataEntry.remove({slug: req.params.slug}, function (err, testDataEntries) {
+    if (err)
+      res.status(500).end('Something went wrong');
+      //res.status(204).end('TestDataEntry deleted'); does not work yet better 200 with message
+      res.json({ message: 'TestDataEntry deleted!' });
+  });
 }
 
 // transform text into regex for search

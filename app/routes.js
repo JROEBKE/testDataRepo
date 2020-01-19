@@ -4,7 +4,14 @@ const express      = require('express'),
   mainController   = require('./controllers/main.controller'),
   testDataEntriesController = require('./controllers/test.data.entries.controller'),
   apiController    = require('./controllers/api.controller'),
-  uploadController = require('./controllers/upload.controller');
+  uploadController = require('./controllers/upload.controller'),
+  { check }        = require('express-validator');
+
+
+const JwtAudience =  process.env.JWTAUDIENCE;
+const JwtIssuer=  process.env.JWTISSUER;
+const jwt            = require('express-jwt'); //validation for backend
+const jwksRsa        = require('jwks-rsa');
 
 // export router
 module.exports = router;
@@ -15,74 +22,80 @@ define view routes
 */
 
 // show search page
-router.get('/', mainController.showHome);
+router.get('/', mainController.base);
+router.get('/web', mainController.showHome);
 
 // search currently does not work
-router.get('/', testDataEntriesController.queryTestDataEntries);
+router.get('/web', testDataEntriesController.queryTestDataEntries);
 
 // get active testdataentries
-router.get('/testdataentries', testDataEntriesController.queryTestDataEntries);
+router.get('/web/testdataentries', testDataEntriesController.queryTestDataEntries);
 
 // create testdata entry
-router.get('/testdataentries/create',  testDataEntriesController.showCreate);
-router.post('/testdataentries/create', testDataEntriesController.processCreate);
+router.get('/web/testdataentries/create',  testDataEntriesController.showCreate);
+router.post('/web/testdataentries/create',[check('email').trim().escape().isEmail().withMessage('No valid email'),], testDataEntriesController.processCreate);
 
 // edit testdata entry
-router.get('/testdataentries/:slug/edit', testDataEntriesController.showEdit);
-router.post('/testdataentries/:slug',     testDataEntriesController.processEdit);
+router.get('/web/testdataentries/:slug/edit', testDataEntriesController.showEdit);
+router.post('/web/testdataentries/:slug',[check('email').trim().escape().isEmail().withMessage('No valid email'),], testDataEntriesController.processEdit);
 
 // delete testdata entry
-router.get('/testdataentries/:slug/delete', testDataEntriesController.deleteTestDataEntry);
-
-// show documentation
-router.get('/testdataentries/documentation', mainController.showDocumentation);
+router.get('/web/testdataentries/:slug/delete', testDataEntriesController.deleteTestDataEntry);
 
 // show swagger spec
 router.get('/swagger.json', mainController.swagger);
 
 // bulk upload to create
-router.get('/upload', uploadController.showUpload);
-router.post('/upload', uploadController.processUpload);
+router.get('/web/upload', uploadController.showUpload);
+router.post('/web/upload', uploadController.processUpload);
 
 //csv template download
-router.get('/upload/template', uploadController.showUploadTemplate);
+router.get('/web/upload/template', uploadController.showUploadTemplate);
 
 /*
 define api routes
 --------------------------------------------------------
- */
+*/
+
 // swagger defintions
 /**
- * @swagger
- * definitions:
- *   TestDataEntry:
- *     properties:
- *       email:
- *         type: string
- *         description: email of test account used for identication purpose on identity provider
- *         required: false
- *         example: garfield@email.com
- *       description:
- *         type: string
- *         description: description of test account providing details about account
- *         required: false
- *         example: Lore ipsum sum
- *       password:
- *         type: string
- *         description: password of test account used for identication purpose on identity provider
- *         required: false
- *         example: Test123$
- *       stages:
- *         type: array
- *         description: list of stages involved by test account. Please use following convention application_stage with capital letters.
- *         required: false
- *         example: QS, PRELIVE
- *       tags:
- *         type: array
- *         description: free array . It is recommended to add projects with capital letters and underscore.
- *         required: false
- *         example: TC123, TC456, TC789
- */
+// ABC
+/**
+* @swagger
+* definitions:
+*   TestDataEntry:
+*     properties:
+*       email:
+*         type: string
+*         description: email of test account used for identication purpose on identity provider
+*         required: false
+*         example: garfield@email.com
+*       description:
+*         type: string
+*         description: description of test account providing details about account
+*         required: false
+*         example: Lore ipsum sum
+*       password:
+*         type: string
+*         description: password of test account used for identication purpose on identity provider
+*         required: false
+*         example: Test123$
+*       stages:
+*         type: array
+*         description: list of stages involved by test account. Please use following convention application_stage with capital letters.
+*         required: false
+*         example: QS, PRELIVE
+*       tags:
+*         type: array
+*         description: free array . It is recommended to add projects with capital letters and underscore.
+*         required: false
+*         example: TC123, TC456, TC789
+* securityDefinitions:
+*  Bearer:
+*   type: apiKey
+*   name: Authorization
+*   in: header
+*/
 
 // get all testdataentries
 /**
@@ -96,7 +109,7 @@ define api routes
  *       - application/json
  *     parameters:
  *       - name: per_page
- *         description: optional query parameter specifies how much results should be returned default limit is 20
+ *         description: optional query parameter specifies how much results should be returned default limit is 20 and max 100
  *         in: "query"
  *         required: false
  *         type: integer
@@ -146,8 +159,18 @@ define api routes
  *     responses:
  *       200:
  *         description: An array of test data entries
+ *         schema:
+ *          $ref: "#/definitions/TestDataEntry"
+ *     security:
+ *        - Bearer: []
  */
-router.get('/api/v1/testdataentries', apiController.getTestDataEntries);
+router.get('/api/v1/testdataentries',[
+    check('per_page').trim().escape().optional().isFloat({ min: 0, max: 100 }).withMessage('You have to provide a number between 0 and 100'),
+    check('page').trim().escape().optional().isFloat({ min: 0, max: 10000 }).withMessage('You have to provide a number between 0 and 10.000'),
+    check('description').trim().escape().optional().isAlphanumeric().isLength({max: 2000}).withMessage('You have to provide a string with less than 2.000 chars'),
+    check('stage').trim().escape().optional().isAlphanumeric().isLength({max: 2000}).withMessage('You have to provide a string with less than 2.000 chars'),
+    check('tag').trim().escape().optional().isAlphanumeric().isLength({max: 2000}).withMessage('You have to provide a string with less than 2.000 chars'),
+], apiController.getTestDataEntries);
 
 // post new testDataEntry
 /**
@@ -169,9 +192,13 @@ router.get('/api/v1/testdataentries', apiController.getTestDataEntries);
  *     responses:
  *       201:
  *         description: TestDataEntry created!
- *
+ *     security:
+ *        - Bearer: []
  */
-router.post('/api/v1/testdataentries', apiController.postTestDataEntry);
+
+router.post('/api/v1/testdataentries',[
+], apiController.postTestDataEntry);
+
 
 // get single testDataEntry
 /**
@@ -193,6 +220,8 @@ router.post('/api/v1/testdataentries', apiController.postTestDataEntry);
  *     responses:
  *       200:
  *         description: A dedicated test data entry
+ *     security:
+ *        - Bearer: []
  */
 router.get('/api/v1/testdataentries/:slug', apiController.getTestDataEntry);
 
@@ -221,6 +250,8 @@ router.get('/api/v1/testdataentries/:slug', apiController.getTestDataEntry);
  *     responses:
  *       200:
  *         description: TestDataEntry full updated!
+ *     security:
+ *        - Bearer: []
  */
 router.put('/api/v1/testdataentries/:slug', apiController.putTestDataEntry);
 
@@ -249,6 +280,8 @@ router.put('/api/v1/testdataentries/:slug', apiController.putTestDataEntry);
  *     responses:
  *       200:
  *           $ref: '#/definitions/TestDataEntry'
+ *     security:
+ *        - Bearer: []
  */
 router.patch('/api/v1/testdataentries/:slug', apiController.patchTestDataEntry);
 
@@ -268,9 +301,11 @@ router.patch('/api/v1/testdataentries/:slug', apiController.patchTestDataEntry);
  *         in: path
  *         required: true
  *         type: string
-*         example: garfield@email.com
+ *         example: garfield@email.com
  *     responses:
  *       200:
  *         description: Successfully deleted
+ *     security:
+ *        - Bearer: []
  */
 router.delete('/api/v1/testdataentries/:slug', apiController.deleteTestDataEntry);

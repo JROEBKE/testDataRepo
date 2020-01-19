@@ -2,23 +2,62 @@
 require('dotenv').config();
 
 // grab our dependencies
-const express    = require('express'),
-  app            = express(),
-  expressLayouts = require('express-ejs-layouts'),
-  mongoose       = require('mongoose'),
-  bodyParser     = require('body-parser'),
-  session        = require('express-session'),
-  cookieParser   = require('cookie-parser'),
-  flash          = require('connect-flash'), //error UI
-  argv           = require('minimist')(process.argv.slice(2)),
-  expressValidator = require('express-validator'),
-  helmet         = require('helmet'); //security validator
-  swaggerJSDoc   = require('swagger-jsdoc'); //swagger API doc
-  //path           = require('path'); //file upload storage
-  fileUpload     = require('express-fileupload');
+const express    = require('express');
+const app            = express();
+const expressLayouts = require('express-ejs-layouts');
+const mongoose       = require('mongoose');
+const bodyParser     = require('body-parser');
+const session        = require('express-session');
+const cookieParser   = require('cookie-parser');
+const flash          = require('connect-flash'); //error UI
+const argv           = require('minimist')(process.argv.slice(2));
+const helmet         = require('helmet'); //security validator
+const fileUpload     = require('express-fileupload');
+const basicAuth      = require('express-basic-auth'); // validation for frontend
+const jwt            = require('express-jwt'); //validation for backend
+const morgan         = require('morgan');
+const cors           = require('cors');
+const jwksRsa        = require('jwks-rsa');
 
+// activate basicAuth by for frontend
+const Password =  process.env.PASSWORD;
+const User =  process.env.USER;
+const BasicAuth =  process.env.BASICAUTH;
 
-// configure our application ===================
+if (BasicAuth=="true"){
+  console.log(`basic auth activated`);
+  app.use('/web',basicAuth({ authorizer: myAuthorizer, challenge: true }));
+  function myAuthorizer(username, password) {
+      const userMatches = basicAuth.safeCompare(username, User)
+      const passwordMatches = basicAuth.safeCompare(password, Password)
+      return userMatches & passwordMatches
+  }
+}
+
+// activate token validation for REST API
+const JwtAudience =  process.env.JWTAUDIENCE;
+const JwtIssuer   =  process.env.JWTISSUER;
+const Jwt         =  process.env.JWT;
+
+if (Jwt=="true"){
+  console.log(`token validation activated`);
+
+  const checkJwt = jwt({
+    secret: jwksRsa.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: 'https://dev-f57thxj4.auth0.com/.well-known/jwks.json' //endpoint which provides the signing key
+    }),
+
+    // Validate the audience and the issuer.
+    audience: JwtAudience,
+    issuer: JwtIssuer,
+    algorithms: ['RS256']
+  });
+
+  app.use('/api', checkJwt);
+}
 
 // set sessions and cookie parser
 app.use(cookieParser());
@@ -39,7 +78,6 @@ app.use(expressLayouts);
 
 // connect to database
 mongoose.connect(process.env.DB_URI);
-//mongoose.connect('mongodb://localhost/testdataentries');
 
 // use body parser to grab info from a form
 app.use(bodyParser.urlencoded({ extended: true })); //true changed to false for validation test
@@ -48,12 +86,14 @@ app.use(bodyParser.json());
 //fileUpload
 app.use(fileUpload());
 
-//Validation
-app.use(expressValidator());
+// enabling CORS for all requests
+app.use(cors());
 
 //helmet security
 app.use(helmet())
 
+// adding morgan to log HTTP requests
+app.use(morgan('combined'));
 
 //Set var port = 8080 as default;
 var   port = process.env.PORT || 8080;
