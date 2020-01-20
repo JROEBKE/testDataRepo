@@ -37,6 +37,7 @@ if (BasicAuth=="true"){
 // activate token validation for REST API
 const JwtAudience =  process.env.JWTAUDIENCE;
 const JwtIssuer   =  process.env.JWTISSUER;
+const JwksUri   =  process.env.JWKSURI;
 const Jwt         =  process.env.JWT;
 
 if (Jwt=="true"){
@@ -47,7 +48,7 @@ if (Jwt=="true"){
       cache: true,
       rateLimit: true,
       jwksRequestsPerMinute: 5,
-      jwksUri: 'https://dev-f57thxj4.auth0.com/.well-known/jwks.json' //endpoint which provides the signing key
+      jwksUri: JwksUri //endpoint which provides the signing key
     }),
 
     // Validate the audience and the issuer.

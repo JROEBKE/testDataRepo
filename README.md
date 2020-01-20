@@ -10,22 +10,23 @@ Steps:
 
 1. Create a .env file like this
 
-SECRET="" //Add your secret
+SECRET=""
 DOMAIN="localhost"
 PORT="8080"
 DB_URI="mongodb://.../test-data"
 
-2. If you want basic auth as part of your project for websites just add to env file following parameters
+2. If you want basic auth as part of your project for websites just add to env file following parameters. BASICAUTH must be true otherwise it does not work.
 
-USER="" //Add your user
-PASSWORD=""  //Add your user
-BASICAUTH="true"  //only if true as value is provided it will activate
+USER=""
+PASSWORD=""
+BASICAUTH="true"
 
-3. If you want to active OAuth token protection for API endpoints add following parameter to env file. If you have no
+3. If you want to active OAuth token protection for API endpoints add following parameter to env file. JWT must be true otherwise it does not work.
 
 JWT="true"
-JWTAUDIENCE="" //Add audience
-JWTISSUER="" //Add your issuer URL
+JWTAUDIENCE=""
+JWTISSUER=""
+JWKSURI=""
 
 4. npm init
 
