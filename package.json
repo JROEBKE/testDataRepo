@@ -29,7 +29,7 @@
     "is-error-code": "^1.0.0",
     "json2csv": "^4.5.4",
     "jwks-rsa": "^1.6.1",
-    "minimist": "*",
+    "minimist": "1.2.2",
     "moment": "^2.24.0",
     "mongodb": "^3.5.1",
     "mongoose": "^5.8.9",
