@@ -37,7 +37,7 @@
     "mongoose-paginate": "^5.0.3",
     "mongoose-timestamp": "^0.6.0",
     "morgan": "^1.9.1",
-    "swagger-jsdoc": "^1.10.3",
+    "swagger-jsdoc": "^3.0.0",
     "swagger-ui": "^3.25.0",
     "tablesorter": "^2.31.2"
   }
