@@ -32,7 +32,7 @@
     "minimist": "*",
     "moment": "^2.24.0",
     "mongodb": "^3.5.1",
-    "mongoose": "^5.8.9",
+    "mongoose": "^5.12.3",
     "mongoose-duplicate-error": "^1.0.0",
     "mongoose-paginate": "^5.0.3",
     "mongoose-timestamp": "^0.6.0",
